@@ -40,16 +40,26 @@ function load_mailbox(mailbox)
   fetch('/emails/' + mailbox)
   .then(response => response.json())
   .then(emails => {
-    emails.forEach(email => {
+    if(!emails.length)
+    {
       let ePlace = document.createElement('div');
-      ePlace.className = email['read'] ? "email-list-item-read" : "email-list-item-unread";
-      ePlace.innerHTML = `<span class="sender col-3"> <b>${email['sender']}</b> </span>
-                          <span class="subject col-6"> ${email['subject']} </span>
-                          <span class="timestamp col-3"> ${email['timestamp']} </span>`;
-
-      ePlace.addEventListener('click', () => load_mailPage(email['id']));
+      ePlace.setAttribute('class', 'Email-Null');
+      ePlace.innerHTML = 'There Are No Emails Here Right Now!!!'
       document.querySelector('#emails-view').appendChild(ePlace);
-    });
+    }
+    else
+    {
+      emails.forEach(email => {
+        let ePlace = document.createElement('div');
+        ePlace.setAttribute('class', 'Email');
+        ePlace.innerHTML = `<span class="sender"> <b>${email['sender']}</b></span> |
+                            <span class="subject"> ${email['subject']} </span> |
+                            <span class="timestamp"> ${email['timestamp']} </span>`;
+  
+        ePlace.addEventListener('click', () => load_mailPage(email['id']));
+        document.querySelector('#emails-view').appendChild(ePlace);
+      });
+    }
   });
 }
 
@@ -85,10 +95,10 @@ function load_mailPage(id){
                            <h4>From: ${email['sender']}</h4>
                            <h4>To: ${email['recipients']}</h4>
                            <p>${email['body']}</p>
-                           <span><b>${email['timestamp']}</b></span>
-                           <label for="archive">Archive</label><input id="archive" type="checkbox" value="yes">`;
+                           <p>${email['timestamp']}</p>
+                           <button class="btn btn-sm btn-outline-primary" id="archive" ></button>`;
     read(email['id']);
-    make_Archive(email['id']);
+    make_Archive(email['id'], email);
 
   })
   .catch(error => {
@@ -108,32 +118,21 @@ function read(id)
   });
 }
 
-function make_Archive(id)
+function make_Archive(id, email)
 {
   const arcCheck = document.querySelector('#archive');
+  
+  arcCheck.innerHTML = !email['archived'] ? 'Archive' : 'Unarchive';
 
-  arcCheck.addEventListener('change', () => {
-    console.log(arcCheck.checked)
-    if(arcCheck.checked === true)
-    {
-      fetch('/emails/' + id, {
-        method: 'PUT',
-        body: JSON.stringify({ archived: true})
-      })
-      .catch(error => {
-        console.log('Error: ', error)
-      })
+  arcCheck.addEventListener('click', () => {
+    fetch('/emails/' + id, {
+      method: 'PUT',
+      body: JSON.stringify({ archived : !email['archived'] })
+    })
+    .then(response => load_mailbox('inbox'))
+    .catch(error => {
+      console.log('Error: ', error)
+    });
     }
-    else
-    {
-      fetch('/emails/' + id, {
-        method: 'PUT',
-        body: JSON.stringify({ archived: false})
-      })
-      .catch(error => {
-        console.log('Error: ', error)
-      })
-    }
-    
-  })
+  )
 }
