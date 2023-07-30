@@ -76,21 +76,19 @@ function load_mailPage(id){
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#email-page').style.display = 'block';
 
-  console.log(id)
-
   fetch(`/emails/${id}`)
   .then(response => response.json())
   .then(email => {
     const emailView = document.querySelector('#email-page');
 
-    console.log(email)
-
     emailView.innerHTML = `<h3>${email['subject']}</h3>
                            <h4>From: ${email['sender']}</h4>
                            <h4>To: ${email['recipients']}</h4>
                            <p>${email['body']}</p>
-                           <span><b>${email['timestamp']}</b></span>`;
-    readArchive(email['id']);
+                           <span><b>${email['timestamp']}</b></span>
+                           <label for="archive">Archive</label><input id="archive" type="checkbox" value="yes">`;
+    read(email['id']);
+    make_Archive(email['id']);
 
   })
   .catch(error => {
@@ -98,7 +96,44 @@ function load_mailPage(id){
   });
 }
 
-function readArchive(id)
+function read(id)
 {
-  
+  console.log(id)
+  fetch('/emails/' + id, {
+    method: 'PUT',
+    body: JSON.stringify({read: true})
+  })
+  .catch(error => {
+    console.log('Error:', error);
+  });
+}
+
+function make_Archive(id)
+{
+  const arcCheck = document.querySelector('#archive');
+
+  arcCheck.addEventListener('change', () => {
+    console.log(arcCheck.checked)
+    if(arcCheck.checked === true)
+    {
+      fetch('/emails/' + id, {
+        method: 'PUT',
+        body: JSON.stringify({ archived: true})
+      })
+      .catch(error => {
+        console.log('Error: ', error)
+      })
+    }
+    else
+    {
+      fetch('/emails/' + id, {
+        method: 'PUT',
+        body: JSON.stringify({ archived: false})
+      })
+      .catch(error => {
+        console.log('Error: ', error)
+      })
+    }
+    
+  })
 }
