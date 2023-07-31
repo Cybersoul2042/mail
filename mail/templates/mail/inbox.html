@@ -17,7 +17,7 @@
     </div>
 
     <div id="compose-view">
-        <h3>New Email</h3>
+        <h3 id="compose-head">New Email</h3>
         <form id="compose-form">
             <div class="form-group">
                 <label for="compose-sender">From:</label> <input id="compose-sender" class="form-control" value="{{ request.user.email }}" disabled>
@@ -44,5 +44,5 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'mail/inbox.js' %}"></script>
+    <script src="{% static 'mail/inbox1.js' %}"></script>
 {% endblock %}
