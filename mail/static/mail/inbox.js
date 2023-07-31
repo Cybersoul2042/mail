@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
   
 });
 
-
 function compose_email() {
 
   // Show compose view and hide other views
@@ -20,12 +19,34 @@ function compose_email() {
   document.querySelector('#compose-view').style.display = 'block';
   document.querySelector('#email-page').style.display = 'none';
   // Clear out composition fields
+  
+  document.querySelector('#compose-head').innerHTML = 'New Email';
   document.querySelector('#compose-recipients').value = '';
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
+  document.querySelector('#compose-recipients').disabled = false;
+  document.querySelector('#compose-subject').disabled = false;
+  document.querySelector('#compose-body').placeholder = 'Body';
+
+}
+
+// Fill out composition fields when replied
+function compose_reply(sub,  sender, body, time){
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#email-page').style.display = 'none';
+  
+  document.querySelector('#compose-recipients').value = `${sender}`;
+  document.querySelector('#compose-subject').value = `Re: ${sub}`;
+  document.querySelector('#compose-body').placeholder = `On ${time} ${sender} said: ${body}`;
+
+  document.querySelector('#compose-recipients').disabled = true;
+  document.querySelector('#compose-subject').disabled = true;
+  document.querySelector('#compose-head').innerHTML = 'Reply';
 }
   
-
+  
+// Loading mail box
 function load_mailbox(mailbox) 
 {
   
@@ -56,15 +77,17 @@ function load_mailbox(mailbox)
                             <span class="subject"> ${email['subject']} </span> |
                             <span class="timestamp"> ${email['timestamp']} </span>`;
   
-        ePlace.addEventListener('click', () => load_mailPage(email['id']));
+        ePlace.addEventListener('click', () => load_mailPage(email['id'], mailbox));
         document.querySelector('#emails-view').appendChild(ePlace);
       });
     }
   });
 }
 
+// Submitting composition form
 function submit()
 {
+  
   fetch('/emails', {
     method: 'POST',
     body: JSON.stringify({
@@ -77,11 +100,12 @@ function submit()
   .catch(error => {
     console.log('Error:', error)
   });
+  console.log(4000)
 }
 
 
-
-function load_mailPage(id){
+// Loading mail pages
+function load_mailPage(id, mailbox){
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#email-page').style.display = 'block';
@@ -91,14 +115,34 @@ function load_mailPage(id){
   .then(email => {
     const emailView = document.querySelector('#email-page');
 
-    emailView.innerHTML = `<h3>${email['subject']}</h3>
-                           <h4>From: ${email['sender']}</h4>
-                           <h4>To: ${email['recipients']}</h4>
-                           <p>${email['body']}</p>
-                           <p>${email['timestamp']}</p>
-                           <button class="btn btn-sm btn-outline-primary" id="archive" ></button>`;
-    read(email['id']);
-    make_Archive(email['id'], email);
+    emailView.innerHTML = `<header class="email-subject">Subject: ${email['subject']}</header>
+                           <div class="email-detail">
+                            <p class="email-sender">From: ${email['sender']}</p>
+                            <p class="email-recipient">To: ${email['recipients']}</p>
+                            <p class="email-time">${email['timestamp']}</p>
+                           </div>
+                           <div class="email-body"><p>${email['body']}</p></div>`;
+
+    if(mailbox !== 'sent')
+    {
+      emailView.innerHTML += `<div class="email-btn">
+                                <button class="btn btn-sm btn-outline-primary" id="archive" ></button>
+                                <button class="btn btn-sm btn-outline-primary" id="reply" >Reply</button>
+                              </div>`;
+
+      const reply = document.querySelector('#reply')
+      const arcCheck = document.querySelector('#archive');
+      arcCheck.innerHTML = !email['archived'] ? 'Archive' : 'Unarchive';
+
+      arcCheck.addEventListener('click', () => make_Archive(email['id'], email));
+
+      reply.addEventListener('click', () => {
+        compose_reply(email['subject'], email['sender'], email['body'], email['timestamp'])
+      });
+
+      read(email['id']);
+      
+    }
 
   })
   .catch(error => {
@@ -106,6 +150,7 @@ function load_mailPage(id){
   });
 }
 
+// Checking read state after opening a mail page
 function read(id)
 {
   console.log(id)
@@ -118,21 +163,16 @@ function read(id)
   });
 }
 
+// Make a inbox mail archive after clicking on a button or reverse
 function make_Archive(id, email)
-{
-  const arcCheck = document.querySelector('#archive');
-  
-  arcCheck.innerHTML = !email['archived'] ? 'Archive' : 'Unarchive';
-
-  arcCheck.addEventListener('click', () => {
-    fetch('/emails/' + id, {
-      method: 'PUT',
-      body: JSON.stringify({ archived : !email['archived'] })
-    })
-    .then(response => load_mailbox('inbox'))
-    .catch(error => {
-      console.log('Error: ', error)
-    });
-    }
-  )
+{ 
+  fetch('/emails/' + id, {
+    method: 'PUT',
+    body: JSON.stringify({ archived : !email['archived'] })
+  })
+  .then(response => load_mailbox('inbox'))
+  .catch(error => {
+    console.log('Error: ', error)
+  });
+    
 }

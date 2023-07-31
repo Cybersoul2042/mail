@@ -1,0 +1,122 @@
+body {
+    background-color: rgb(34, 31, 47);
+    color: rgb(255, 255, 255);
+    height: 100%;
+}
+
+.effect1 {
+    content: "";
+    position: absolute;
+    width: 400px;
+    height: 300px;
+    background-color: rgb(34, 168, 205);
+    left: 60%;
+    top: 75%;
+    filter: blur(200px);
+    border-radius: 20%;
+}
+
+.effect2 {
+    content: "";
+    position: absolute;
+    width: 400px;
+    height: 300px;
+    background-color: rgb(237, 47, 240);
+    left: 10%;
+    top: 20%;
+    filter: blur(200px);
+    border-radius: 20%;
+}
+
+.container {
+    height: 100%;
+    position:relative;
+    background-color: rgba(0, 0, 0, 0.44);
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 4px 30px;
+    backdrop-filter: blur(10px);
+    padding: 20px 30px;
+    border-radius: 16px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.4);
+    border-image: initial;
+}
+
+#user{
+    text-align: center;
+}
+
+.links{
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+.links > button{
+    font-size: 18px;
+    margin-right: 5px;
+}
+
+.links > a{
+    font-size: 16px;
+}
+
+hr{
+    background-color: white;
+    margin-top: 20px;
+    margin-bottom: 5px;
+}
+
+.Email{
+    margin: 10px;
+}
+
+.Email:hover{
+    cursor: pointer;
+    color: rgba(255, 255, 0, 0.715);
+}
+
+.form-submit{
+    text-align: right;
+    margin-top: 0.8rem;
+}
+
+#email-page > header{
+    font-size: 28px;
+}
+
+.email-detail > .email-sender{
+    text-align: left;
+    font-size: 12px;
+    margin: 0;
+}
+.email-detail > .email-recipient{
+    text-align: left;
+    font-size: 12px;
+    margin: 0;
+}
+.email-detail > .email-time{
+    text-align: right;
+    font-size: 11px;
+    margin: 0;
+    margin-bottom:2px;
+}
+
+.email-body{
+    border-top: 1px solid white;
+    padding-top: 10px;
+    font-size: 24px;
+}
+
+.email-btn{
+    display: flex;
+    justify-content: left;
+}
+
+#archive{
+    margin-right: 5px;
+}
+
+textarea{
+    min-height: 400px;
+}
